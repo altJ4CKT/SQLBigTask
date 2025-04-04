@@ -7,6 +7,7 @@ db1: Database = Database("./Imazon.db")
 
 
 class ShoppingMenuFrame(tk.Frame):
+    searchEntry: tk.Entry
 
     def __init__(self, windowRef:tk.Tk, oldFrame:tk.Frame):
 
@@ -19,6 +20,49 @@ class ShoppingMenuFrame(tk.Frame):
 
     def SetupLayout(self):
         self.configure(bg="black")
+
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=1)
+        self.rowconfigure(4, weight=1)
+        self.rowconfigure(5, weight=1)
+        self.rowconfigure(6, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
+        self.columnconfigure(3, weight=1)
+        self.columnconfigure(4, weight=1)
+        self.columnconfigure(5, weight=1)
+        self.columnconfigure(6, weight=1)
+        self.columnconfigure(7, weight=1)
+
+        self.searchEntry = tk.Entry(self, font=["Century Gothic", 20], width=20)
+        self.searchEntry.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
+
+        tk.Button(self, text="Search", command=lambda: self.searchButtonClicked(), 
+                  font=["Century Gothic", 20], 
+                  width=10).grid(row=0, column=2, padx=5, pady=5)
+        
+        self.resultsBox = tk.Listbox(self, font=["Century Gothic", 20], width=40, height=20)
+        self.resultsBox.grid(row=1, column=0, columnspan=3, rowspan=5, padx=5, pady=5)
+        
+    def searchButtonClicked(self):
+        searchTerm = self.searchEntry.get()
+
+        self.resultsBox.delete(0, tk.END)
+
+        tempDb = sqlite3.connect("./Imazon.db")
+
+        matchingProducts = tempDb.execute("SELECT PName FROM Products "
+                                          "WHERE PName LIKE ?",
+                                          ['%' + searchTerm + '%'])
+        matchingProducts = matchingProducts.fetchall()
+        tempDb.commit()
+        tempDb.close()
+
+        for product in matchingProducts:
+            self.resultsBox.insert(tk.END, product[0])
 
 
 class RegisterFrame(tk.Frame):
@@ -197,6 +241,9 @@ class MainProgram(tk.Tk):
 
         LoginRegisterFrame(self, None)
         self.mainloop()
+
+db1.createTables()
+db1.populateProductsTable(db1)
 
 x: MainProgram = MainProgram()
 
