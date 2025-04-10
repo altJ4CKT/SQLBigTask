@@ -44,7 +44,8 @@ class Database:
 
     def insertIntoTable(self, tableName, values: list):
 
-        tempDb = sqlite3.connect(self.databaseRef)
+        print("OPENED INSERT INTO BASKET")
+        tempDb = sqlite3.connect("./Imazon.db")
 
         if tableName == "Products":
             tempDb.execute("INSERT INTO Products(PName, Description, Price) VALUES(?,?,?)",
@@ -56,23 +57,31 @@ class Database:
 
         elif tableName == "Basket":
             try:
+                print(1)
                 tempDb.execute("INSERT INTO Basket(ProductID, Customer_Id, Quantity) VALUES(?,?,?)",
                                values)
-
+                print(values)
+                print(1.1)
             except sqlite3.IntegrityError:
+                print(2)
                 quantity = tempDb.execute("SELECT Quantity FROM Basket "
-                                          "WHERE ProductID = ?"
+                                          "WHERE ProductID = ? "
                                           "AND Customer_Id = ?", [values[0], values[1]])
+                print(2.1)
                 quantity = quantity.fetchone()[0]
+                print(2.2)
                 quantity += 1
+                print(2.3)
                 tempDb.execute("UPDATE Basket SET Quantity = ? "
-                           "WHERE ProductID = ?"
+                           "WHERE ProductID = ? "
                            "AND Customer_Id = ?", [quantity, values[0], values[1]])
-
+                print(2.4)
 
 
         tempDb.commit()
+        print("SAVED INSERT INTO BASKET")
         tempDb.close()
+        print("CLOSED INSERT INTO BASKET")
 
     def getUniqueCustomers(self):
 
@@ -80,6 +89,7 @@ class Database:
         data = db.execute("SELECT DISTINCT Customer_Id FROM Customer")
         cIds = data.fetchall()
         print(cIds)
+        db.close()
 
     def getUniqueProducts(self):
 
@@ -87,6 +97,7 @@ class Database:
         data = db.execute("SELECT DISTINCT ProductID FROM Products")
         pIds = data.fetchall()
         print(pIds)
+        db.close()
 
 
     def populateProductsTable(self, db2):
@@ -121,7 +132,6 @@ class Database:
 
         for product in products:
             db2.insertIntoTable("Products", product)
-
 
 
 
