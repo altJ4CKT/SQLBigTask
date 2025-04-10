@@ -4,6 +4,62 @@ import sqlite3
 
 db1: Database = Database("./Imazon.db")
 
+class ViewBasketClicked(tk.Frame):
+
+    def __init__(self, windowRef: tk.Tk, oldFrame: tk.Frame, cId):
+
+        if oldFrame is not None:
+            oldFrame.destroy()
+
+        self.cId = cId
+
+        super().__init__(windowRef)
+        self.SetupLayout()
+        self.pack(fill="both", expand=True)
+
+    def SetupLayout(self):
+        self.configure(bg="black")
+
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
+        self.columnconfigure(3, weight=1)
+
+        self.basketBox = tk.Listbox(self, font=["Century Gothic", 20], width=40, height=20)
+        self.basketBox.grid(row=0, column=0, columnspan=4, rowspan=4, padx=5, pady=5)
+
+        tempDb = sqlite3.connect("./Imazon.db")
+
+        pId = tempDb.execute("SELECT ProductId FROM Basket "
+                             "WHERE Customer_Id = ?", [self.cId])
+
+        pId = list(pId)
+        print(pId)
+
+        products = []
+
+        for i in pId:
+
+            product = tempDb.execute("SELECT PName FROM Products "
+                                           "WHERE ProductID = ?", [pId[i]])
+
+            product = product.fetchone()
+
+            products.append(product)
+
+        tempDb.commit()
+        tempDb.close()
+
+        self.basketBox.delete(0, tk.END)
+
+        for item in products:
+            self.basketBox.insert(tk.END, item[0])
+
+
 
 class ShoppingMenuFrame(tk.Frame):
     searchEntry: tk.Entry
@@ -53,7 +109,9 @@ class ShoppingMenuFrame(tk.Frame):
                   font=["Century Gothic", 20],
                   width=20).grid(row=0, column=7, padx=5, pady=5)
 
-
+        tk.Button(self, text="View Basket", command=lambda: ViewBasketClicked(self.master, self, self.cId),
+                  font=["Century Gothic", 20],
+                  width=20).grid(row=6, column=7, padx=5, pady=5)
 
     def searchButtonClicked(self):
         searchTerm = self.searchEntry.get()
