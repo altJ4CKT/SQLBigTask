@@ -34,30 +34,28 @@ class ViewBasketClicked(tk.Frame):
 
         tempDb = sqlite3.connect("./Imazon.db")
 
-        pId = tempDb.execute("SELECT ProductId FROM Basket "
+        pIds = tempDb.execute("SELECT ProductId FROM Basket "
                              "WHERE Customer_Id = ?", [self.cId])
 
-        pId = list(pId)
-        print(pId)
+        pIds = pIds.fetchall()
 
-        products = []
+        PNames = []
 
-        for i in pId:
-
+        for pId in pIds:
             product = tempDb.execute("SELECT PName FROM Products "
-                                           "WHERE ProductID = ?", [pId[i]])
+                                          "WHERE ProductID = ?", [pId[0]])
+            product = product.fetchone()[0]
 
-            product = product.fetchone()
+            PNames.append(product)
+            print(PNames)
 
-            products.append(product)
+        for i in PNames:
+            self.basketBox.insert(tk.END, i)
+
+
 
         tempDb.commit()
         tempDb.close()
-
-        self.basketBox.delete(0, tk.END)
-
-        for item in products:
-            self.basketBox.insert(tk.END, item[0])
 
 
 
