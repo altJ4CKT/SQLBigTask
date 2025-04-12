@@ -35,7 +35,7 @@ class ViewBasketClicked(tk.Frame):
         tempDb = sqlite3.connect("./Imazon.db")
 
         pIds = tempDb.execute("SELECT ProductId FROM Basket "
-                             "WHERE Customer_Id = ?", [self.cId])
+                              "WHERE Customer_Id = ?", [self.cId])
 
         pIds = pIds.fetchall()
 
@@ -43,7 +43,7 @@ class ViewBasketClicked(tk.Frame):
 
         for pId in pIds:
             product = tempDb.execute("SELECT PName FROM Products "
-                                          "WHERE ProductID = ?", [pId[0]])
+                                     "WHERE ProductID = ?", [pId[0]])
             product = product.fetchone()[0]
 
             PNames.append(product)
@@ -356,3 +356,4 @@ class MainProgram(tk.Tk):
 # db1.populateProductsTable(db1)
 
 x: MainProgram = MainProgram()
+
